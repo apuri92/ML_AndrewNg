@@ -13,9 +13,16 @@ figure; hold on;
 %
 
 
+pos = find(y==1);
+neg = find(y==0);
+plot(X(pos,1),X(pos, 2),'k+', 'LineWidth',2,'MarkerSize',7, 'MarkerFaceColor', 'g')
+hold on
+plot(X(neg,1),X(neg, 2),'ko','LineWidth',2,'MarkerSize',7, 'MarkerFaceColor', 'r')
 
-
-
+% figure(2)
+% scatter(X(pos,1),X(pos, 2),'b','+')
+% hold on
+% scatter(X(neg,1),X(neg, 2),'r','o')
 
 
 
