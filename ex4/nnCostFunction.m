@@ -27,8 +27,8 @@ m = size(X, 1);
          
 % You need to return the following variables correctly 
 J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+Theta1_grad = zeros(size(Theta1)); %size = 25 * 401
+Theta2_grad = zeros(size(Theta2)); %size = 10 * 26
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
@@ -39,6 +39,41 @@ Theta2_grad = zeros(size(Theta2));
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
 %
+
+% vectorized
+Y = eye(num_labels)(y,:); %size = 5000 * 10
+A1 = [ones(m, 1) X]; %size = 5000 * 401
+Z2 = A1*Theta1'; %size = 5000 * 25
+A2 = [ones(m, 1) sigmoid(Z2)]; %size = 5000 * 26
+Z3 = A2*Theta2'; %size = 5000 * 10
+H = A3 = sigmoid(Z3); %size = 5000 * 10
+
+J = (-1/m) * sum((Y.*log(H) + (1-Y).*log(1-A3))(:)); %size = 1
+
+JReg = (lambda/(2*m)) * (sum((Theta1(:,2:end).^2)(:)) + sum((Theta2(:,2:end).^2)(:))); %size = 1
+J+=JReg;
+
+
+% Non vectorized (for each sample)
+% for i=1:m,
+%     % get current row
+%     xi = X(i,:)';
+%     a1 = [ones(1); xi];
+%     z2 = Theta1*a1;
+%     a2 = [ones(1); sigmoid(z2)];
+%     z3 = Theta2*a2;
+%     a3 = sigmoid(z3);
+
+%     yi = zeros(num_labels,1);
+%     yi(y(i)) = 1;
+
+%     Ji = (-1/m) * (yi'*log(a3) + (1-yi)'*log(1-a3));
+%     J+=Ji;
+% end;
+% JReg = (lambda/(2*m)) * (sum((Theta1(:,2:end).*Theta1(:,2:end))(:)) + sum((Theta2(:,2:end).*Theta2(:,2:end))(:)))
+% J += JReg;
+
+
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
 %         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
@@ -54,6 +89,14 @@ Theta2_grad = zeros(size(Theta2));
 %               over the training examples if you are implementing it for the 
 %               first time.
 %
+
+
+delta3 = A3 - Y; %size = 5000 * 10
+delta2 = delta3*Theta2(:,2:end) .* sigmoidGradient(Z2); % size = 5000 * 25
+
+Theta2_grad = (1/m) * delta3'*A2; %size = 10 * 26
+Theta1_grad = (1/m) * delta2'*A1; %size = 25 * 401
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %         Hint: You can implement this around the code for
@@ -63,10 +106,10 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
-
-
-
-
+Theta1Reg = (lambda/m) * [zeros(hidden_layer_size,1) Theta1(:,2:end)]; % size = 25 * 401
+Theta2Reg = (lambda/m) * [zeros(num_labels,1) Theta2(:,2:end)]; % size = 10 * 26
+Theta1_grad+=Theta1Reg; % size = 25 * 401
+Theta2_grad+=Theta2Reg; % size = 10 * 26
 
 
 
